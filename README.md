@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FORM / 001 — Liquid Glass
 
-## Getting Started
-
-First, run the development server:
+An interactive liquid-glass orb built with Next.js, React Three Fiber and custom GLSL.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build (deploys to Vercel as-is)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Glass shell** (`shaders/liquidVertex.glsl`, `shaders/liquidFragment.glsl`): a high-subdivision icosphere displaced by simplex noise, with normals rebuilt per vertex. Each frame the scene is rendered *without* the shell into a half-float buffer, then the shell samples that buffer with per-channel refraction (chromatic dispersion). It also adds Fresnel reflections from a procedural studio environment, an iridescent rim and a cursor-driven key light.
+- **Liquid core** (`shaders/core*.glsl`): an additive, noise-deformed inner volume rendered only into the refraction buffer, so it is only ever seen through the glass.
+- **Backdrop** (`shaders/backdropFragment.glsl`): atmosphere, halo ring and cursor light live in the 3D scene, so the orb genuinely bends them.
+- **Interaction** (`components/LiquidOrb.tsx`): an analytic ray/sphere probe drives hover, the bulge toward the cursor, velocity-based ripples, tap/double-tap waves and the hover cursor. All per-frame state lives in refs, and React only re-renders on control changes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+```text
+components/  Experience (shell, fallbacks) · OrbScene (Canvas, post, adaptive quality)
+             LiquidOrb · Backdrop · ParticleField · OrbControls · Navigation · HeroContent · InteractionHint
+shaders/     noise · liquid* · core* · backdropFragment · particle*
+lib/         experience.ts — settings, quality tiers, palette, shared interaction type
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GLSL files are imported as strings through a webpack `asset/source` rule in `next.config.ts`. `next dev --turbopack` would need an equivalent loader rule.

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# third-party agent skills (reinstall from skills-lock.json)
+.claude/skills/

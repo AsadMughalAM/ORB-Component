@@ -1,26 +1,229 @@
 @import "tailwindcss";
 
+/* Side-by-side "stage" layout: wide AND landscape. Portrait tablets use the stacked layout. */
+@custom-variant wide (@media (min-width: 768px) and (orientation: landscape));
+/* Short viewports (e.g. laptops with browser chrome): tighter vertical rhythm. */
+@custom-variant short (@media (max-height: 720px));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #020308;
+  --fg: #e9eef8;
+  --muted: rgba(233, 238, 248, 0.6);
+  --faint: rgba(233, 238, 248, 0.3);
+  --line: rgba(233, 238, 248, 0.09);
+  --cyan: #6be6ff;
+  --violet: #8c6bff;
+  --sapphire: #0e2a8c;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--cyan);
+  --color-accent-2: var(--violet);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-bodoni), ui-serif, Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  scroll-behavior: smooth;
+  background: var(--bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hold scrolling while the loader runs. */
+body[data-loading="true"] {
+  overflow: hidden;
+}
+
+::selection {
+  background: rgba(107, 230, 255, 0.22);
+}
+
+:focus-visible {
+  outline: 1px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+/* Small uppercase label, used where the brief sets text in caps. */
+.label {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Headline ---------- */
+.headline {
+  font-family: var(--font-bodoni), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+/* Silver type with a slow sheen that sweeps across once every ten seconds. */
+.headline-sheen {
+  color: transparent;
+  background-image:
+    linear-gradient(105deg, transparent 42%, rgba(196, 238, 255, 0.95) 50%, transparent 58%),
+    linear-gradient(180deg, #f6f8fd 0%, #d3dcf0 55%, #93a3cf 100%);
+  background-size: 260% 100%, 100% 100%;
+  background-position: 160% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: sheen 10s var(--ease-out) 2.4s infinite;
+}
+
+@keyframes sheen {
+  0% {
+    background-position: 160% 0, 0 0;
+  }
+  28%,
+  100% {
+    background-position: -60% 0, 0 0;
+  }
+}
+
+/* ---------- Custom range input ---------- */
+.range {
+  --fill: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.range:focus {
+  outline: none;
+}
+.range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, rgba(107, 230, 255, 0.9), rgba(140, 107, 255, 0.9)) 0 0 / var(--fill) 100% no-repeat,
+    rgba(233, 238, 248, 0.1);
+}
+.range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(233, 238, 248, 0.1);
+}
+.range::-moz-range-progress {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(107, 230, 255, 0.9), rgba(140, 107, 255, 0.9));
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: var(--fg);
+  box-shadow: 0 0 0 3px rgba(2, 3, 8, 0.9), 0 0 0 4px rgba(233, 238, 248, 0.25);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--fg);
+  box-shadow: 0 0 0 3px rgba(2, 3, 8, 0.9), 0 0 0 4px rgba(233, 238, 248, 0.25);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.range:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(2, 3, 8, 0.9), 0 0 0 4px rgba(107, 230, 255, 0.5), 0 0 18px rgba(107, 230, 255, 0.45);
+}
+.range:active::-webkit-slider-thumb {
+  transform: scale(1.3);
+}
+.range:hover::-moz-range-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(2, 3, 8, 0.9), 0 0 0 4px rgba(107, 230, 255, 0.5), 0 0 18px rgba(107, 230, 255, 0.45);
+}
+.range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(2, 3, 8, 0.9), 0 0 0 5px var(--cyan);
+}
+.range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(2, 3, 8, 0.9), 0 0 0 5px var(--cyan);
+}
+
+/* ---------- Fallback orb (no WebGL) ---------- */
+.fallback-orb {
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 12%),
+    radial-gradient(circle at 70% 80%, rgba(140, 107, 255, 0.35) 0%, rgba(140, 107, 255, 0) 42%),
+    radial-gradient(circle at 34% 72%, rgba(107, 230, 255, 0.28) 0%, rgba(107, 230, 255, 0) 48%),
+    radial-gradient(circle at 50% 50%, rgba(14, 42, 140, 0.25) 0%, rgba(2, 3, 8, 0.92) 72%);
+  box-shadow:
+    inset 0 0 0 1px rgba(230, 236, 248, 0.2),
+    inset 0 0 60px rgba(107, 230, 255, 0.12),
+    0 0 140px rgba(47, 107, 255, 0.14);
+  animation: fallback-float 9s ease-in-out infinite;
+}
+
+@keyframes fallback-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes live-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: inherit;
+  animation: live-pulse 2.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .fallback-orb,
+  .live-dot::after,
+  .headline-sheen {
+    animation: none;
+  }
 }
